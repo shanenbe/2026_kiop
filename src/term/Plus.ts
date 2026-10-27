@@ -1,15 +1,32 @@
-export abstract class Term {
-    abstract reduce(): Term;
-    abstract replace(name: string, t: Term) : Term;
+import {Literal} from "./Literal";
+import {Term} from "./Term";
+import {Environment} from "../types/Environment";
+import {Type} from "../types/Type";
+import {FunctionType} from "../types/FunctionType";
+import {Bool} from "../types/Bool";
+import {True} from "./True";
+import {False} from "./False";
+import {Num} from "../types/Num";
 
-    abstract clone(): Term;
-    
-    abstract FI(): string[];
+export class Plus extends Literal {
 
-    abstract is_reducible(): boolean;
+    clone(): Term {
+        return new Plus();
+    }
 
-    abstract type_of(e: Environment) {
+    // T-plus: +: Number -> Number -> Number
+    type_of(e: Environment): Type {
+        return new FunctionType(new Num(), new FunctionType(new Num(), new Num()));
+    }
 
-}
+    is_function(): boolean {
+        return true;
+    }
 
+    apply_parameter(term: Term): Term {
+
+
+        throw "Something's seriously wrong.....this must no occur in type checked program";
+
+    }
 }

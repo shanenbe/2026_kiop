@@ -1,8 +1,38 @@
 // t1 t2
 import {Term} from "./Term.js";
 import {Abstraction} from "./Abstraction.js";
+import {LambdaFunction} from "./LambdaFunction.js";
+import { Environment } from "../types/Environment.js";
+import { Type } from "../types/Type.js";
+import {FunctionType} from "../types/FunctionType";
 
 export class Application extends Term {
+
+    left: Term;
+    right: Term;
+
+    /*
+         E |- t1: T' -> T    E |- t2: T'
+         ===============================
+                E |- t1 t2: T
+     */
+    type_of(e: Environment): Type {
+        let left_type = this.type_of(e);
+
+        if(!(left_type instanceof Type)) {
+            throw "Invalid type. Term has no Function Type";
+        }
+
+        let left_function_type = left_type as FunctionType;
+
+        let right_type = this.right.type_of(e);
+
+        if (! (right_type).equals(left_function_type.left))
+            throw "Invalid type";
+
+        return left_function_type.right;
+
+    }
 
     is_reducible(): boolean {
 
@@ -19,8 +49,6 @@ export class Application extends Term {
         return new Application(this.left.clone(), this.right.clone());
     }
 
-    left: Term;
-    right: Term;
 
     constructor(left: Term, right: Term) {
         super();
@@ -40,10 +68,11 @@ export class Application extends Term {
             return new Application(this.left.clone(), this.right.reduce());
         }
 
-
-        if (this.left instanceof Abstraction) {
-           return this.left.body.clone().replace(this.left.param_name, this.right.clone())
+        if (this.left.is_function()) {
+            let f = (this.left as Object as LambdaFunction);
+            return f.apply_parameter(this.right.clone());
         }
+
 
         throw "Something's seriously wrong";
     }

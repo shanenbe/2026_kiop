@@ -1,7 +1,22 @@
 import {Term} from "./Term.js";
 import {Abstraction} from "./Abstraction";
+import { Environment } from "../types/Environment.js";
+import { Type } from "../types/Type.js";
 
 export class Variable extends Term {
+
+    /*
+         (x:T) € E
+         ===========
+         E |- x : T
+     */
+    type_of(e: Environment): Type {
+        let index = e.index_of(this.name);
+        if(index != -1)
+            return e.elements[index].type;
+        else
+            throw "unknown variable in environment: " + this.name;
+    }
 
     is_reducible(): boolean {
         return false;
